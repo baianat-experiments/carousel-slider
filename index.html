@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="dist/css/turbo.css">
+</head>
+<body>
+  <style media="screen">
+    .item {
+      height: 200px;
+      background-color: #62CAAA;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      font-size: 30px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+    .container {
+      width: 80vw;
+      direction: block;
+      margin: auto;
+    }
+  </style>
+  <div class="container">
+    <div class="turbo" id="test1">
+      <div class="item">
+        <p>1</p>
+      </div>
+      <div class="item">
+        <p>2</p>
+      </div>
+      <div class="item">
+        <p>3</p>
+      </div>
+      <div class="item">
+        <p>4</p>
+      </div>
+      <div class="item">
+        <p>5</p>
+      </div>
+      <div class="item">
+        <p>6</p>
+      </div>
+
+      <a class="turbo-next">
+        <svg class="icon" id="icon-next" viewBox="0 0 24 24">
+           <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </a>
+      <a class="turbo-back">
+        <svg class="icon" id="icon-back" viewBox="0 0 24 24">
+          <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="turbo" id="test2">
+      <div class="item">
+        <p>1</p>
+      </div>
+      <div class="item">
+        <p>2</p>
+      </div>
+      <div class="item">
+        <p>3</p>
+      </div>
+      <div class="item">
+        <p>4</p>
+      </div>
+      <div class="item">
+        <p>5</p>
+      </div>
+      <div class="item">
+        <p>6</p>
+      </div>
+
+      <a class="turbo-next">
+        <svg class="icon" id="icon-next" viewBox="0 0 24 24">
+           <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </a>
+      <a class="turbo-back">
+        <svg class="icon" id="icon-back" viewBox="0 0 24 24">
+          <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="turbo" id="test3">
+      <div class="item">
+        <p>1</p>
+      </div>
+      <div class="item">
+        <p>2</p>
+      </div>
+      <div class="item">
+        <p>3</p>
+      </div>
+      <div class="item">
+        <p>4</p>
+      </div>
+      <div class="item">
+        <p>5</p>
+      </div>
+      <div class="item">
+        <p>6</p>
+      </div>
+
+      <a class="turbo-next">
+        <svg class="icon" id="icon-next" viewBox="0 0 24 24">
+           <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </a>
+      <a class="turbo-back">
+        <svg class="icon" id="icon-back" viewBox="0 0 24 24">
+          <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+  <script type="text/javascript" src="dist/js/turbo.js">
+
+  </script>
+  <script>
+    new Turbo('#test1');
+    new Turbo('#test2', {
+      itemsToShow: 3,
+      infiniteScroll: false
+    });
+    new Turbo('#test3', {
+      itemsToShow: 3,
+      infiniteScroll: true,
+      centerMode: true
+    });
+  </script>
+</body>
+</html>

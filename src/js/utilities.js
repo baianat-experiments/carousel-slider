@@ -35,9 +35,9 @@ export function getArray(length, value) {
 
 export function debounce(func, wait, immediate) {
   var timeout;
-  return function() {
+  return function () {
     var context = this, args = arguments;
-    var later = function() {
+    var later = function () {
       timeout = null;
       if (!immediate) func.apply(context, args);
     };
@@ -48,7 +48,7 @@ export function debounce(func, wait, immediate) {
   };
 }
 
-export function throttle (callback, limit) {
+export function throttle(callback, limit) {
   var wait = false;
   return function () {
     var context = this, args = arguments;
@@ -60,4 +60,3 @@ export function throttle (callback, limit) {
       }, limit);
     }
   };
-}

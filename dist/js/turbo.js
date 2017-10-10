@@ -45,7 +45,7 @@ Turbo.prototype.init = function init () {
 
   this.initEvents();
   this.initWrapper();
-  if (this.settings.infiniteScroll) this.initClones();
+  if (this.settings.infiniteScroll) { this.initClones(); }
   this.updateWidth();
 };
 
@@ -119,7 +119,7 @@ Turbo.prototype.updateWidth = function updateWidth () {
 Turbo.prototype.goTo = function goTo (index) {
     var this$1 = this;
 
-  if (this.isSliding) return;
+  if (this.isSliding) { return; }
   this.isSliding = true;
   var slideWidth = this.itemWidth + 10;
   var fixedRatio = this.settings.infiniteScroll ? (this.itemsCount + 1) * slideWidth : 0;

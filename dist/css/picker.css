@@ -1,10 +1,17 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
 .icon {
   width: 50px;
   height: 50px;
 }
 .turbo {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
   position: relative;
   width: 100%;
   overflow: hidden;
@@ -14,8 +21,6 @@
   display: -ms-flexbox;
   display: flex;
   height: 100%;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
 }
 .turbo-item {
   height: 100%;
@@ -23,8 +28,6 @@
   overflow: hidden;
   -ms-flex-negative: 0;
       flex-shrink: 0;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
 }
 .turbo-next,
 .turbo-back {
@@ -55,4 +58,4 @@
   left: 0;
 }
 
-/*# sourceMappingURL=turbo.css.map */
+/*# sourceMappingURL=picker.css.map */

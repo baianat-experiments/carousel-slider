@@ -60,3 +60,4 @@ export function throttle(callback, limit) {
       }, limit);
     }
   };
+}

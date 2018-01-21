@@ -1,35 +1,47 @@
-# Turbo
-ES6 carousal
+# Veer
 
-#### Current version: 0.0.1
+A beautiful responsive carousel.
 
-## key features
-* Build using ES6 classes
+## Key Features
+
+* Built using ES6 classes
 * Lightweight
 * Easy customizing
 * Support SVG out of the box
 * Infinity scroll
-* Center mood
+* Center mode
 
-[example](https://baianat.github.io/turbo/)
+## [Example](https://baianat.github.io/veer/)
 
+## Getting Started
 
-## How to use
-#### include necessary files
+### Install
+
+First step is to install it using yarn or npm
+
+```bash
+npm install @baianat/align
+
+# or use yarn
+yarn add @baianat/align
+```
+
+### Include necessary files
+
 ``` html
 <head>
-  <link rel="stylesheet" href="dist/css/turbo.css">
+  <link rel="stylesheet" href="dist/css/veer.css">
 </head>
 <body>
     ...
-    <script type="text/javascript" src="dist/js/turbo.js"></script>
+    <script type="text/javascript" src="dist/js/veer.js"></script>
 </body>
 ```
 
 #### HTML markup
-Just the ordinary table markup with class ``table``
+
 ``` html
-<div class="turbo" id="carousal1">
+<div class="veer" id="myCarousel">
   <div class="item">
     ...
   </div>
@@ -38,12 +50,12 @@ Just the ordinary table markup with class ``table``
   </div>
 
   <!-- you can add any icon you want or use ours-->
-  <a class="turbo-next">
+  <a class="veer-next">
     <svg class="icon" id="icon-next" viewBox="0 0 24 24">
       <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
     </svg>
   </a>
-  <a class="turbo-back">
+  <a class="veer-back">
     <svg class="icon" id="icon-back" viewBox="0 0 24 24">
       <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
     </svg>
@@ -51,24 +63,22 @@ Just the ordinary table markup with class ``table``
 </div>
 ```
 
-#### Create new carosal
-``` javascript
-  let myCarousal = new Turbo('#carousal1', { settings });
-```
-{
-    itemsToShow = 1,
-    itemsToScroll = 1,
-    infiniteScroll = true,
-    centerMode = false
-  }
+### Create new carousel
 
-#### Settings
-| Properties     | default  | description                    |
+``` javascript
+  let myCarousel = new Veer('#myCarousel', { 
+    // settings 
+  });
+```
+
+### Settings
+
+| PROPERTY       | DEFAULT  | DESCRIPTION                    |
 | -------------- | -------- | ------------------------------ |
-| itemsToShow    | 1        | how many items shows           |
-| itemsToScroll  | 1        | how many items to scroll       |
+| itemsToShow    | 1        | how many items to show |
+| itemsToScroll  | 1        | how many items to scroll |
 | infiniteScroll | true     | enable/disable infinite scroll |
-| centerMode     | false    | enable/disable center mode     |
+| centerMode     | false    | enable/disable center mode |
 
 ## License
 

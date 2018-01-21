@@ -4,12 +4,13 @@ A beautiful responsive carousel.
 
 ## Key Features
 
-* Built using ES6 classes
-* Lightweight
-* Easy customizing
-* Support SVG out of the box
-* Infinity scroll
-* Center mode
+* Built using ES6 classes.
+* Lightweight.
+* Easy customizing.
+* Support SVG out of the box.
+* Infinity scroll.
+* Center mode.
+* Fully responsive.
 
 ## [Example](https://baianat.github.io/veer/)
 
@@ -66,19 +67,19 @@ yarn add @baianat/align
 ### Create new carousel
 
 ``` javascript
-  let myCarousel = new Veer('#myCarousel', { 
-    // settings 
+  let myCarousel = new Veer('#myCarousel', {
+    // settings
   });
 ```
 
 ### Settings
 
-| PROPERTY       | DEFAULT  | DESCRIPTION                    |
-| -------------- | -------- | ------------------------------ |
-| itemsToShow    | 1        | how many items to show |
-| itemsToScroll  | 1        | how many items to scroll |
-| infiniteScroll | true     | enable/disable infinite scroll |
-| centerMode     | false    | enable/disable center mode |
+| VARIABLE       | DEFAULT | DESCRIPTION |
+| -------------- | ------- | ------------|
+| itemsToShow    | 1       | this variable allows you to set the amount of items displayed at a time |
+| itemsToScroll  | 1       | this variable allows you to set how many items to scroll at a time|
+| infiniteScroll | true    | this variable allows you enable or disable infinite scroll |
+| centerMode     | false   | this variable allows you enable or disable center mode |
 
 ## License
 

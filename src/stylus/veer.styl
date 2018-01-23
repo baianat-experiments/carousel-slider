@@ -1,0 +1,38 @@
+.veer
+  position: relative
+  overflow: hidden
+  box-sizing: border-box
+  width: 100%
+
+  &-track
+    display: flex
+    box-sizing: border-box
+    height: 100%
+
+  &-item
+    flex-shrink: 0
+    overflow: hidden
+    box-sizing: border-box
+    margin: 0 5px
+    height: 100%
+
+  &-next,
+  &-prev
+    position: absolute
+    z-index: 999
+    display: flex
+    justify-content: center
+    align-items: center
+    height: 100%
+    color: $white
+    fill: $white
+
+    &:hover
+      color: $blue
+      fill: $blue
+
+  &-next
+    right: 0
+
+  &-back
+    left: 0

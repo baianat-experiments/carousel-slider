@@ -3,7 +3,7 @@ import {
 } from './utilities';
 
 
-class Turbo {
+class Veer {
   constructor(selector, {
     itemsToShow = 1,
     itemsToScroll = 1,
@@ -21,15 +21,15 @@ class Turbo {
   }
 
   init() {
-    this.items = Array.from(this.el.querySelectorAll(':scope > *:not([class^="turbo"])'));
+    this.items = Array.from(this.el.querySelectorAll(':scope > *:not([class^="veer"])'));
     this.itemsCount = this.items.length - 1;
     this.currentItem = 0;
     this.itemWidth  = 0;
     this.clones = [];
     this.containerWidth = 0;
     this.track = null;
-    this.nextButton = this.el.querySelector('.turbo-next');
-    this.backButton = this.el.querySelector('.turbo-back');
+    this.nextButton = this.el.querySelector('.veer-next');
+    this.backButton = this.el.querySelector('.veer-back');
     this.isSliding = false;
 
     this.initEvents();
@@ -41,13 +41,13 @@ class Turbo {
   initWrapper() {
     const fragment = document.createDocumentFragment();
     this.track = document.createElement('div');
-    this.track.classList.add('turbo-track');
+    this.track.classList.add('veer-track');
     this.items.forEach((item, index) => {
-      const turboItem = document.createElement('div');
-      turboItem.classList.add('turbo-item');
-      turboItem.appendChild(item);
-      this.items[index] = turboItem;
-      this.track.appendChild(turboItem);
+      const veerItem = document.createElement('div');
+      veerItem.classList.add('veer-item');
+      veerItem.appendChild(item);
+      this.items[index] = veerItem;
+      this.track.appendChild(veerItem);
     });
     fragment.appendChild(this.track);
     this.el.appendChild(fragment);
@@ -57,7 +57,7 @@ class Turbo {
     const afterClones = document.createDocumentFragment();
     this.items.forEach((item) => {
       const clone = item.cloneNode(true);
-      clone.classList.add('turbo-clone');
+      clone.classList.add('veer-clone');
       this.clones.push(clone);
       afterClones.appendChild(clone);
     });
@@ -66,7 +66,7 @@ class Turbo {
     const beforeClones = document.createDocumentFragment();
     this.items.forEach((item) => {
       const clone = item.cloneNode(true);
-      clone.classList.add('turbo-clone');
+      clone.classList.add('veer-clone');
       this.clones.push(clone);
       beforeClones.appendChild(clone);
     });
@@ -138,4 +138,4 @@ class Turbo {
   }
 }
 
-export default Turbo;
+export default veer;

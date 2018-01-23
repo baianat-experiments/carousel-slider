@@ -43,10 +43,12 @@ yarn add @baianat/veer
 
 ``` html
 <div class="veer" id="myCarousel">
-  <div class="item">
+
+  <!-- your carousel items -->
+  <div>
     ...
   </div>
-  <div class="item">
+  <div>
     ...
   </div>
 

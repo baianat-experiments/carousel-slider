@@ -21,10 +21,10 @@ A beautiful responsive carousel.
 First step is to install it using yarn or npm
 
 ```bash
-npm install @baianat/align
+npm install @baianat/veer
 
 # or use yarn
-yarn add @baianat/align
+yarn add @baianat/veer
 ```
 
 ### Include necessary files

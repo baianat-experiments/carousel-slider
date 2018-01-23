@@ -22,18 +22,18 @@ class Veer {
 
   init() {
     this.items = Array.from(this.el.querySelectorAll(':scope > *:not([class^="veer"])'));
-    this.itemsCount = this.items.length - 1;
+    this.itemsCount = this.items.length;
     this.currentItem = 0;
     this.itemWidth  = 0;
     this.clones = [];
     this.containerWidth = 0;
     this.track = null;
     this.nextButton = this.el.querySelector('.veer-next');
-    this.backButton = this.el.querySelector('.veer-back');
+    this.prevButton = this.el.querySelector('.veer-prev');
     this.isSliding = false;
 
-    this.initEvents();
     this.initWrapper();
+    this.initEvents();
     if (this.settings.infiniteScroll) this.initClones();
     this.updateWidth();
   }
@@ -77,17 +77,78 @@ class Veer {
     if (this.nextButton) {
       this.nextButton.addEventListener('click', this.next.bind(this), false);
     }
-    if (this.backButton) {
-      this.backButton.addEventListener('click', this.back.bind(this), false);
+    if (this.prevButton) {
+      this.prevButton.addEventListener('click', this.prev.bind(this), false);
     }
+
+    this.track.addEventListener('mousedown', (event) => {
+      if (event.button !== 0) return;
+      let startPosition = {}
+      let endPosition = {}
+      this.delta = {}
+      this.track.classList.add('is-grabbing');
+
+      event.preventDefault();
+      startPosition.x = event.clientX;
+      startPosition.y = event.clientY;
+
+      const mousemoveHandler = (evnt) => {
+        endPosition.x = evnt.clientX;
+        endPosition.y = evnt.clientY;
+        this.delta.x = endPosition.x - startPosition.x;
+        this.delta.y = endPosition.y - startPosition.y;
+        this.updateItemsTranslate(this.delta.x);
+      }
+      const mouseupHandler = () => {
+        const draggedItems = Math.floor((-this.delta.x + (this.itemWidth / 2))/ this.itemWidth);
+        this.track.classList.remove('is-grabbing');
+        this.goTo(this.currentItem + draggedItems);
+
+        document.removeEventListener('mousemove', mousemoveHandler);
+        document.removeEventListener('mouseup', mouseupHandler);
+      }
+      document.addEventListener('mousemove', mousemoveHandler);
+      document.addEventListener('mouseup', mouseupHandler);
+    });
+
+    this.track.addEventListener('touchstart', (event) => {
+      console.log(event)
+      let startPosition = {}
+      let endPosition = {}
+      this.delta = {}
+      this.track.classList.add('is-grabbing');
+
+      event.preventDefault();
+      startPosition.x = event.touches[0].clientX;
+      startPosition.y = event.touches[0].clientY;
+
+      const touchmoveHandler = (evnt) => {
+        endPosition.x = evnt.touches[0].clientX;
+        endPosition.y = evnt.touches[0].clientY;
+        this.delta.x = endPosition.x - startPosition.x;
+        this.delta.y = endPosition.y - startPosition.y;
+        this.updateItemsTranslate(this.delta.x);
+      }
+      const touchendHandler = () => {
+        const draggedItems = Math.floor((-this.delta.x + (this.itemWidth / 2)) / this.itemWidth);
+        this.track.classList.remove('is-grabbing');
+        this.goTo(this.currentItem + draggedItems);
+
+        document.removeEventListener('touchmove', touchmoveHandler);
+        document.removeEventListener('touchend', touchendHandler);
+      }
+      document.addEventListener('touchmove', touchmoveHandler);
+      document.addEventListener('touchend', touchendHandler);
+    });
+
     window.addEventListener('resize', this.updateWidth.bind(this), false);
   }
 
   updateWidth() {
     this.containerWidth = this.el.offsetWidth;
-    this.itemWidth = (this.containerWidth / this.settings.itemsToShow) - 10;
+    this.itemWidth = (this.containerWidth / this.settings.itemsToShow);
     if (this.settings.centerMode) {
-      this.itemWidth = (this.containerWidth / (this.settings.itemsToShow + 0.5)) - 10;
+      this.itemWidth = (this.containerWidth / (this.settings.itemsToShow + 0.5));
       this.track.firstChild.style.marginLeft = `${this.itemWidth / 4}px`;
     }
     this.items.forEach((item) => {
@@ -102,40 +163,48 @@ class Veer {
   goTo(index) {
     if (this.isSliding) return;
     this.isSliding = true;
-    const slideWidth = this.itemWidth + 10;
-    const fixedRatio = this.settings.infiniteScroll ? (this.itemsCount + 1) * slideWidth : 0;
-    this.track.style.transition = '0.5s';
-    this.track.style.transform = `translate(${(index * - slideWidth) - fixedRatio}px, 0)`;
-    this.currentItem = index;
 
+    this.track.style.transition = '0.5s';
+    this.currentItem = this.settings.infiniteScroll
+      ? index 
+      : Math.min(Math.max(index, 0), this.itemsCount - this.settings.itemsToShow);
+    this.updateItemsTranslate();
+    
     setTimeout(() => {
-      this.track.style.transition = '0s';
-      if (this.currentItem > this.itemsCount) {
-        this.currentItem = 0;
-        this.track.style.transform = `translate(${-fixedRatio}px, 0)`;
-      }
-      if (this.currentItem < 0) {
-        this.currentItem = this.itemsCount;
-        this.track.style.transform = `translate(${(this.itemsCount * - slideWidth) - fixedRatio}px, 0)`;
-      }
       this.isSliding = false;
+      this.track.style.transition = '';
+      if (this.settings.infiniteScroll) {
+        this.currentItem = this.normalizeCurrentItemIndex(this.currentItem);
+        this.updateItemsTranslate();
+      }
     }, 500);
   }
 
   next() {
-    if(
-      this.currentItem !== this.itemsCount - (this.settings.itemsToShow - 1) ||
-      this.settings.infiniteScroll
-    ) {
-      this.goTo(this.currentItem + this.settings.itemsToScroll);
-    }
+    this.goTo(this.currentItem + this.settings.itemsToScroll);
   }
 
-  back() {
-    if(this.currentItem !== 0 || this.settings.infiniteScroll) {
-      this.goTo(this.currentItem - this.settings.itemsToScroll);
+  prev() {
+    this.goTo(this.currentItem - this.settings.itemsToScroll);
+  }
+
+  updateItemsTranslate(drag = 0) {
+    const fixedRatio = this.settings.infiniteScroll ? this.itemsCount * this.itemWidth : 0;
+    this.track.style.transform = `translate3d(${(this.currentItem * - this.itemWidth) - fixedRatio + drag}px, 0, 0)`;
+  }
+
+  normalizeCurrentItemIndex(index) {
+    console.log(index)
+    if (index >= this.itemsCount) {
+      index = index - this.itemsCount;
+      return this.normalizeCurrentItemIndex(index);
     }
+    if (index < 0) {
+      index = index + this.itemsCount;
+      return this.normalizeCurrentItemIndex(index);
+    }
+    return index;
   }
 }
 
-export default veer;
+export default Veer;

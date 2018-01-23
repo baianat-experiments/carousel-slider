@@ -72,8 +72,10 @@ gulp.task('scripts', () => {
     .pipe(plumber())
     .pipe(rollup({
       input: 'src/js/veer.js',
-      format: 'umd',
-      name: `Veer`,
+      output: {
+        format: 'umd',
+        name: 'Veer'
+      },
       allowRealFiles: true,
       plugins: [
         buble()

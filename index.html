@@ -23,8 +23,28 @@
       direction: block;
       margin: 50px auto;
     }
+    .veer.is-3d {
+      perspective: 3000px;
+    }
+    .veer.is-3d .veer-track,
+    .veer.is-3d .veer-item {
+       transform-style: preserve-3d;
+       -webkit-transform-style: preserve-3d;
+    }
+    .veer.is-3d .is-next {
+      opacity: 0.9;
+      transform: rotateY(70deg);
+      transform-origin: center left;
+    }
+    .veer.is-3d .is-prev {
+      opacity: 0.9;
+      transform: rotateY(-70deg);
+      transform-origin: center right;
+    };
   </style>
+
   <div class="container">
+    <h2>Basic example</h2>
     <div class="veer" id="test1">
       <div class="item">1</div>
       <div class="item">2</div>
@@ -49,8 +69,9 @@
       </a>
     </div>
   </div>
-    
+
   <div class="container">  
+    <h2>Multiple items</h2>
     <div class="veer" id="test2">
       <div class="item">1</div>
       <div class="item">2</div>
@@ -77,6 +98,7 @@
   </div>
   
   <div class="container">
+    <h2>Center mode</h2>
     <div class="veer" id="test3">
       <div class="item">1</div>
       <div class="item">2</div>
@@ -101,6 +123,86 @@
       </a>
     </div>
   </div>
+
+  <div class="container">
+    <h2>Working with states classes </h2>
+    <div class="veer is-3d" id="test4">
+      <div class="item">1</div>
+      <div class="item">2</div>
+      <div class="item">3</div>
+      <div class="item">4</div>
+      <div class="item">5</div>
+      <div class="item">6</div>
+      <div class="item">7</div>
+      <div class="item">8</div>
+      <div class="item">9</div>
+      <div class="item">10</div>
+  
+      <a class="veer-next">
+        <svg class="icon" id="icon-next" viewBox="0 0 24 24" fill="#000">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+        </svg>
+      </a>
+      <a class="veer-prev">
+        <svg class="icon" id="icon-prev" viewBox="0 0 24 24" fill="#000">
+          <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" />
+        </svg>
+      </a>
+    </div>
+    </div>
+
+  <div class="container">
+    <h2>Controls another carousal</h2>
+    <div class="veer" id="test5">
+      <div class="item">1</div>
+      <div class="item">2</div>
+      <div class="item">3</div>
+      <div class="item">4</div>
+      <div class="item">5</div>
+      <div class="item">6</div>
+      <div class="item">7</div>
+      <div class="item">8</div>
+      <div class="item">9</div>
+      <div class="item">10</div>
+  
+      <a class="veer-next">
+        <svg class="icon" id="icon-next" viewBox="0 0 24 24">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+        </svg>
+      </a>
+      <a class="veer-prev">
+        <svg class="icon" id="icon-prev" viewBox="0 0 24 24">
+          <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" />
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="veer" id="test6">
+      <div class="item">1</div>
+      <div class="item">2</div>
+      <div class="item">3</div>
+      <div class="item">4</div>
+      <div class="item">5</div>
+      <div class="item">6</div>
+      <div class="item">7</div>
+      <div class="item">8</div>
+      <div class="item">9</div>
+      <div class="item">10</div>
+  
+      <a class="veer-next">
+        <svg class="icon" id="icon-next" viewBox="0 0 24 24">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+        </svg>
+      </a>
+      <a class="veer-prev">
+        <svg class="icon" id="icon-prev" viewBox="0 0 24 24">
+          <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" />
+        </svg>
+      </a>
+    </div>
+  </div>
   <script type="text/javascript" src="dist/js/veer.js">
 
   </script>
@@ -109,12 +211,28 @@
     new Veer('#test2', {
       itemsToShow: 3,
       itemsToScroll: 2,
-      infiniteScroll: false
+      infiniteScroll: true
     });
     new Veer('#test3', {
       itemsToShow: 3,
       infiniteScroll: true,
       centerMode: true
+    });
+    new Veer('#test4', {
+      itemsToShow: 3,
+      infiniteScroll: true,
+      centerMode: true,
+      drag: false
+    });
+    const test5 = new Veer('#test5', {
+        itemsToShow: 1,
+        centerMode: false
+      });
+    const test6 = new Veer('#test6', {
+      controls: test5,
+      itemsToShow: 3,
+      centerMode: true,
+      nextSlidePart: 0.5
     });
   </script>
 </body>

@@ -91,7 +91,6 @@ gulp.task('scripts', () => {
     .pipe(reload({ stream: true }));
 });
 
-
 /**
  * Clean task
  */

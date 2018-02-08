@@ -100,9 +100,9 @@ class Veer {
     if (this.settings.drag) {
       this.track.addEventListener('mousedown', (event) => {
         if (event.button !== 0) return;
-        let startPosition = {}
-        let endPosition = {}
-        this.delta = {}
+        let startPosition = {};
+        let endPosition = {};
+        this.delta = {x: 0, y: 0};
         this.track.classList.add('is-grabbing');
 
         event.preventDefault();
@@ -120,7 +120,6 @@ class Veer {
           const draggedItems = Math.floor((-this.delta.x + (this.itemWidth / 2)) / this.itemWidth);
           this.track.classList.remove('is-grabbing');
           this.goTo(this.currentItem + draggedItems);
-
           document.removeEventListener('mousemove', mousemoveHandler);
           document.removeEventListener('mouseup', mouseupHandler);
         }

@@ -120,7 +120,7 @@ Veer.prototype.initEvents = function initEvents () {
       if (event.button !== 0) { return; }
       var startPosition = {};
       var endPosition = {};
-      this$1.delta = {};
+      this$1.delta = {x: 0, y: 0};
       this$1.track.classList.add('is-grabbing');
 
       event.preventDefault();
@@ -138,7 +138,6 @@ Veer.prototype.initEvents = function initEvents () {
         var draggedItems = Math.floor((-this$1.delta.x + (this$1.itemWidth / 2)) / this$1.itemWidth);
         this$1.track.classList.remove('is-grabbing');
         this$1.goTo(this$1.currentItem + draggedItems);
-
         document.removeEventListener('mousemove', mousemoveHandler);
         document.removeEventListener('mouseup', mouseupHandler);
       };

@@ -1,9 +1,9 @@
 {
-  "name": "@baianat/turbo",
+  "name": "@baianat/veer",
   "version": "0.0.0",
   "description": "ES6 carousal",
   "author": "",
-  "main": "dist/js/turbo.js",
+  "main": "dist/js/veer.js",
   "license": "MIT",
   "keywords": [],
   "maintainers": [

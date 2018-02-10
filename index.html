@@ -8,6 +8,9 @@
 </head>
 <body>
   <style media="screen">
+    .is-current { 
+      background: green;
+    }
     .veer .item {
       height: 200px;
       background-color: #62CAAA;
@@ -152,7 +155,7 @@
     </div>
 
   <div class="container">
-    <h2>Controls another carousal</h2>
+    <h2>Controls another carousel</h2>
     <div class="veer" id="test5">
       <div class="item">1</div>
       <div class="item">2</div>
@@ -209,12 +212,14 @@
   <script>
     new Veer('#test1');
     new Veer('#test2', {
-      itemsToShow: 3,
-      itemsToScroll: 2,
-      infiniteScroll: true
+      itemsToShow: 5,
+      itemsToScroll: 1,
+      infiniteScroll: false,
+      centerMode: false
     });
     new Veer('#test3', {
       itemsToShow: 3,
+      itemsToScroll: 1,
       infiniteScroll: true,
       centerMode: true
     });

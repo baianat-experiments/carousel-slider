@@ -1,6 +1,4 @@
-import {
-  select
-} from './utilities';
+import { select } from './utilities';
 
 class Veer {
   constructor(selector, {
@@ -13,7 +11,7 @@ class Veer {
     drag = true,
     classes = {
       active: 'is-active',
-      center: 'is-center',
+      current: 'is-current',
       prev: 'is-prev',
       next: 'is-next'
     }
@@ -187,8 +185,11 @@ class Veer {
     this.items.forEach(item => { item.style.transition = `${this.settings.transitionTime / 1000}s` });
     this.clonesBefore.forEach(clone => { clone.style.transition = `${this.settings.transitionTime / 1000}s` });
     this.clonesAfter.forEach(clone => { clone.style.transition = `${this.settings.transitionTime / 1000}s` });
-    this.currentItem = this.settings.infiniteScroll ? index : this.normalizeCurrentItemIndex(index);
+    this.currentItem = this.settings.infiniteScroll
+      ? index
+      : Math.min(Math.max(index, 0), this.itemsCount - 1);
     this.updateItemsTranslate();
+    this.updateItemsClasses();
     if (this.settings.controls && !muted) this.settings.controls.goTo(this.currentItem, true);
     if (this.settings.follows && !muted) this.settings.follows.goTo(this.currentItem, true);
 
@@ -201,37 +202,41 @@ class Veer {
       if (this.settings.infiniteScroll) {
         this.currentItem = this.normalizeCurrentItemIndex(index);
         this.updateItemsTranslate();
+        this.updateItemsClasses();
       }
     }, this.settings.transitionTime);
   }
 
   next() {
-    const maxItems = this.settings.centerMode
-      ? this.itemsCount - 1
-      : this.itemsCount - this.settings.itemsToShow;
-    const nextIndex = this.settings.infiniteScroll
-      ? this.currentItem + this.settings.itemsToScroll
-      : Math.min(this.currentItem + this.settings.itemsToScroll, maxItems)
-    this.goTo(nextIndex);
+    this.goTo(this.currentItem + this.settings.itemsToScroll);
   }
 
   prev() {
-    const prevIndex = this.settings.infiniteScroll
-      ? this.currentItem - this.settings.itemsToScroll
-      : Math.max(this.currentItem - this.settings.itemsToScroll, 0)
-    this.goTo(prevIndex);
+    this.goTo(this.currentItem - this.settings.itemsToScroll);
   }
 
   updateItemsTranslate(drag = 0) {
-    const centringRatio = this.settings.centerMode
-      ? ((this.settings.itemsToShow - 0.5) * 0.5) * this.itemWidth
-      : 0;
-    const fixedRatio = this.settings.infiniteScroll
-      ? this.itemsCount * this.itemWidth
-      : 0;
-    const transformX = (this.currentItem * -this.itemWidth) - fixedRatio + drag + centringRatio;
-    this.track.style.transform = `translate3d(${transformX}px, 0, 0)`;
-    this.updateItemsClasses();
+    let centringRatio = 0;
+    let fixedRatio = 0;
+    const startHalf = Math.floor((this.settings.itemsToShow - 1) / 2);
+    const endHalf = startHalf + Math.floor((this.settings.itemsToShow - 1) % 2);
+    let maxItems = this.itemsCount - this.settings.itemsToShow;
+    let scrolledItems = Math.min(Math.max(this.currentItem, 0), maxItems);
+    if (this.settings.centerMode) {
+      centringRatio = (startHalf + 0.25) * this.itemWidth;
+    }
+    if (this.settings.infiniteScroll) {
+      fixedRatio = this.itemsCount * this.itemWidth;
+      scrolledItems = this.currentItem;
+    }
+    if (this.settings.centerMode && !this.settings.infiniteScroll) {
+      scrolledItems = this.currentItem > this.itemsCount - 1 - endHalf
+        ? this.itemsCount - 1 - endHalf : this.currentItem;
+      centringRatio = this.currentItem < startHalf ? (this.currentItem + 0.25) * this.itemWidth : centringRatio;
+    }
+
+    this.transformX = (scrolledItems * -this.itemWidth) - fixedRatio + drag + centringRatio;
+    this.track.style.transform = `translate3d(${this.transformX}px, 0, 0)`;
   }
 
   updateItemsClasses() {
@@ -242,14 +247,16 @@ class Veer {
       this.clonesAfter.forEach(item => item.classList.remove(...Object.values(classes)));
       this.clonesBefore.forEach(item => item.classList.remove(...Object.values(classes)));
     }
-    let startIndex = this.currentItem;
+    let startIndex = this.settings.infiniteScroll
+      ? this.currentItem
+      : Math.min(this.currentItem, this.itemsCount - this.settings.itemsToShow);
     let endIndex = this.currentItem + this.settings.itemsToShow;
     if (this.settings.centerMode) {
-      this.addClass(this.currentItem, classes.center);
-      const cauterizeRatio = Math.round((this.settings.itemsToShow - 1) / 2);
-      startIndex -= cauterizeRatio;
+      const cauterizeRatio = Math.floor((this.settings.itemsToShow - 1) / 2);
+      startIndex = this.currentItem - cauterizeRatio;
       endIndex -= cauterizeRatio;
     }
+    this.addClass(this.currentItem, classes.current);
     this.addClass(startIndex - 1, classes.prev);
     this.addClass(endIndex, classes.next);
     for (let i = startIndex; i < endIndex; i++) {

@@ -50,6 +50,7 @@ var Veer = function Veer(selector, ref) {
 
 Veer.prototype.init = function init () {
   this.items = Array.from(this.el.querySelectorAll(':scope > *:not([class^="veer"])'));
+  this.allItems = this.items;
   this.itemsCount = this.items.length;
   this.currentItem = 0;
   this.itemWidth = 0;
@@ -111,6 +112,7 @@ Veer.prototype.initClones = function initClones () {
     clonesBefore.appendChild(clone);
   });
   this.track.insertBefore(clonesBefore, this.track.firstChild);
+  this.allItems = this.items.concat(this.clonesBefore, this.clonesAfter);
 };
 
 Veer.prototype.initEvents = function initEvents () {
@@ -132,19 +134,19 @@ Veer.prototype.initEvents = function initEvents () {
     this$1.updateItemsTranslate(this$1.delta.x);
   };
   var upHandler = function () {
-    var draggedItems = Math.floor((-this$1.delta.x + (this$1.itemWidth / 2)) / this$1.itemWidth);
-    this$1.track.classList.remove('is-grabbing');
-    console.log(this$1.delta.x);
-    if (Math.abs(this$1.delta.x) > 20) {
-      this$1.goTo(this$1.currentItem + draggedItems);
-    }
     document.removeEventListener('mousemove', moveHandler);
     document.removeEventListener('mouseup', upHandler);
     document.removeEventListener('touchmove', moveHandler);
     document.removeEventListener('touchend', upHandler);
+    if (this$1.delta.x === 0) { return; }
+    var draggedItems = Math.round(this$1.delta.x / this$1.itemWidth + (Math.sign(this$1.delta.x) * 0.25));
+    this$1.track.classList.remove('is-grabbing');
+    var startIndex = this$1.settings.centerMode ? this$1.currentItem : this$1.activeItemsStart;
+    this$1.goTo(startIndex - draggedItems);
+    this$1.delta.x = 0;
+    this$1.delta.y = 0;
   };
 
-  // dragging event
   if (this.settings.dragging) {
     this.track.addEventListener('mousedown', function (event) {
       if (event.button !== 0) { return; }
@@ -179,6 +181,7 @@ Veer.prototype.initEvents = function initEvents () {
       this.clonesBefore.forEach(function (item, index) { item.addEventListener('click', function () { return this$1.goTo(index - this$1.itemsCount); }); });
     }
   }
+
   window.addEventListener('resize', this.updateWidth.bind(this), false);
 };
 
@@ -190,14 +193,8 @@ Veer.prototype.updateWidth = function updateWidth () {
   if (this.settings.centerMode) {
     this.itemWidth = (this.containerWidth / (this.settings.itemsToShow + 0.5));
   }
-  this.items.forEach(function (item) {
+  this.allItems.forEach(function (item) {
     item.style.width = (this$1.itemWidth) + "px";
-  });
-  this.clonesBefore.forEach(function (clone) {
-    clone.style.width = (this$1.itemWidth) + "px";
-  });
-  this.clonesAfter.forEach(function (clone) {
-    clone.style.width = (this$1.itemWidth) + "px";
   });
   this.goTo(this.currentItem);
 };
@@ -206,32 +203,28 @@ Veer.prototype.goTo = function goTo (index, muted) {
     var this$1 = this;
     if ( muted === void 0 ) muted = false;
 
-  console.log(index);
   if (this.isSliding) { return; }
   this.isSliding = true;
 
   this.track.style.transition = (this.settings.transitionTime / 1000) + "s";
-  this.items.forEach(function (item) { item.style.transition = (this$1.settings.transitionTime / 1000) + "s"; });
-  this.clonesBefore.forEach(function (clone) { clone.style.transition = (this$1.settings.transitionTime / 1000) + "s"; });
-  this.clonesAfter.forEach(function (clone) { clone.style.transition = (this$1.settings.transitionTime / 1000) + "s"; });
+  this.allItems.forEach(function (item) {
+    item.style.transition = (this$1.settings.transitionTime / 1000) + "s";
+  });
   this.currentItem = this.settings.infiniteScroll
     ? index
     : Math.min(Math.max(index, 0), this.itemsCount - 1);
-  this.updateItemsTranslate();
-  this.updateItemsClasses();
+
   if (this.settings.controls && !muted) { this.settings.controls.goTo(this.currentItem, true); }
   if (this.settings.follows && !muted) { this.settings.follows.goTo(this.currentItem, true); }
-
+  this.update();
   setTimeout(function () {
     this$1.isSliding = false;
     this$1.track.style.transition = '';
-    this$1.items.forEach(function (item) { item.style.transition = ''; });
-    this$1.clonesBefore.forEach(function (clone) { clone.style.transition = ''; });
-    this$1.clonesAfter.forEach(function (clone) { clone.style.transition = ''; });
+    this$1.allItems.forEach(function (item) { item.style.transition = ''; });
+
     if (this$1.settings.infiniteScroll) {
       this$1.currentItem = this$1.normalizeCurrentItemIndex(index);
-      this$1.updateItemsTranslate();
-      this$1.updateItemsClasses();
+      this$1.update();
     }
   }, this.settings.transitionTime);
 };
@@ -242,6 +235,26 @@ Veer.prototype.next = function next () {
 
 Veer.prototype.prev = function prev () {
   this.goTo(this.currentItem - this.settings.itemsToScroll);
+};
+
+Veer.prototype.update = function update () {
+  this.updateItemsTranslate();
+  this.updateActiveItems();
+  this.updateItemsClasses();
+};
+
+Veer.prototype.updateActiveItems = function updateActiveItems () {
+  this.activeItemsStart = Math.min(this.currentItem, this.itemsCount - this.settings.itemsToShow);
+  this.activeItemsEnd = this.currentItem + this.settings.itemsToShow;
+
+  if (this.settings.centerMode) {
+    var cauterizeRatio = Math.floor((this.settings.itemsToShow - 1) / 2);
+    this.activeItemsStart = this.currentItem - cauterizeRatio;
+    this.activeItemsEnd -= cauterizeRatio;
+  }
+  if (!this.settings.centerMode && this.settings.infiniteScroll) {
+    this.activeItemsStart = this.currentItem;
+  }
 };
 
 Veer.prototype.updateItemsTranslate = function updateItemsTranslate (drag) {
@@ -265,7 +278,6 @@ Veer.prototype.updateItemsTranslate = function updateItemsTranslate (drag) {
       ? this.itemsCount - 1 - endHalf : this.currentItem;
     centringRatio = this.currentItem < startHalf ? (this.currentItem + 0.25) * this.itemWidth : centringRatio;
   }
-
   this.transformX = (scrolledItems * -this.itemWidth) - fixedRatio + drag + centringRatio;
   this.track.style.transform = "translate3d(" + (this.transformX) + "px, 0, 0)";
 };
@@ -274,28 +286,13 @@ Veer.prototype.updateItemsClasses = function updateItemsClasses () {
     var this$1 = this;
 
   var classes = this.settings.classes;
-  // clean all classes
-  this.items.forEach(function (item) { return (ref = item.classList).remove.apply(ref, Object.values(classes))
+  this.allItems.forEach(function (item) { return (ref = item.classList).remove.apply(ref, Object.values(classes))
       var ref; });
-  if (this.settings.infiniteScroll) {
-    this.clonesAfter.forEach(function (item) { return (ref = item.classList).remove.apply(ref, Object.values(classes))
-        var ref; });
-    this.clonesBefore.forEach(function (item) { return (ref = item.classList).remove.apply(ref, Object.values(classes))
-        var ref; });
-  }
-  var startIndex = this.settings.infiniteScroll
-    ? this.currentItem
-    : Math.min(this.currentItem, this.itemsCount - this.settings.itemsToShow);
-  var endIndex = this.currentItem + this.settings.itemsToShow;
-  if (this.settings.centerMode) {
-    var cauterizeRatio = Math.floor((this.settings.itemsToShow - 1) / 2);
-    startIndex = this.currentItem - cauterizeRatio;
-    endIndex -= cauterizeRatio;
-  }
+
   this.addClass(this.currentItem, classes.current);
-  this.addClass(startIndex - 1, classes.prev);
-  this.addClass(endIndex, classes.next);
-  for (var i = startIndex; i < endIndex; i++) {
+  this.addClass(this.activeItemsStart - 1, classes.prev);
+  this.addClass(this.activeItemsEnd, classes.next);
+  for (var i = this.activeItemsStart; i < this.activeItemsEnd; i++) {
     this$1.addClass(i, classes.active);
   }
 };

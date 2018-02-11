@@ -36,6 +36,7 @@ class Veer {
 
   init() {
     this.items = Array.from(this.el.querySelectorAll(':scope > *:not([class^="veer"])'));
+    this.allItems = this.items
     this.itemsCount = this.items.length;
     this.currentItem = 0;
     this.itemWidth = 0;
@@ -93,6 +94,7 @@ class Veer {
       clonesBefore.appendChild(clone);
     });
     this.track.insertBefore(clonesBefore, this.track.firstChild);
+    this.allItems = this.items.concat(this.clonesBefore, this.clonesAfter);
   }
 
   initEvents() {
@@ -112,19 +114,19 @@ class Veer {
       this.updateItemsTranslate(this.delta.x);
     }
     const upHandler = () => {
-      const draggedItems = Math.floor((-this.delta.x + (this.itemWidth / 2)) / this.itemWidth);
-      this.track.classList.remove('is-grabbing');
-      console.log(this.delta.x)
-      if (Math.abs(this.delta.x) > 20) {
-        this.goTo(this.currentItem + draggedItems);
-      }
       document.removeEventListener('mousemove', moveHandler);
       document.removeEventListener('mouseup', upHandler);
       document.removeEventListener('touchmove', moveHandler);
       document.removeEventListener('touchend', upHandler);
+      if (this.delta.x === 0) return;
+      const draggedItems = Math.round(this.delta.x / this.itemWidth + (Math.sign(this.delta.x) * 0.25));
+      this.track.classList.remove('is-grabbing');
+      let startIndex = this.settings.centerMode ? this.currentItem : this.activeItemsStart
+      this.goTo(startIndex - draggedItems);
+      this.delta.x = 0;
+      this.delta.y = 0;
     }
 
-    // dragging event
     if (this.settings.dragging) {
       this.track.addEventListener('mousedown', (event) => {
         if (event.button !== 0) return;
@@ -159,6 +161,7 @@ class Veer {
         this.clonesBefore.forEach((item, index) => { item.addEventListener('click', () => this.goTo(index - this.itemsCount)) });
       }
     }
+
     window.addEventListener('resize', this.updateWidth.bind(this), false);
   }
 
@@ -168,45 +171,35 @@ class Veer {
     if (this.settings.centerMode) {
       this.itemWidth = (this.containerWidth / (this.settings.itemsToShow + 0.5));
     }
-    this.items.forEach((item) => {
+    this.allItems.forEach((item) => {
       item.style.width = `${this.itemWidth}px`;
-    });
-    this.clonesBefore.forEach((clone) => {
-      clone.style.width = `${this.itemWidth}px`;
-    });
-    this.clonesAfter.forEach((clone) => {
-      clone.style.width = `${this.itemWidth}px`;
     });
     this.goTo(this.currentItem);
   }
 
   goTo(index, muted = false) {
-    console.log(index)
     if (this.isSliding) return;
     this.isSliding = true;
 
     this.track.style.transition = `${this.settings.transitionTime / 1000}s`;
-    this.items.forEach(item => { item.style.transition = `${this.settings.transitionTime / 1000}s` });
-    this.clonesBefore.forEach(clone => { clone.style.transition = `${this.settings.transitionTime / 1000}s` });
-    this.clonesAfter.forEach(clone => { clone.style.transition = `${this.settings.transitionTime / 1000}s` });
+    this.allItems.forEach(item => {
+      item.style.transition = `${this.settings.transitionTime / 1000}s`
+    });
     this.currentItem = this.settings.infiniteScroll
       ? index
       : Math.min(Math.max(index, 0), this.itemsCount - 1);
-    this.updateItemsTranslate();
-    this.updateItemsClasses();
+
     if (this.settings.controls && !muted) this.settings.controls.goTo(this.currentItem, true);
     if (this.settings.follows && !muted) this.settings.follows.goTo(this.currentItem, true);
-
+    this.update();
     setTimeout(() => {
       this.isSliding = false;
       this.track.style.transition = '';
-      this.items.forEach(item => { item.style.transition = '' });
-      this.clonesBefore.forEach(clone => { clone.style.transition = '' });
-      this.clonesAfter.forEach(clone => { clone.style.transition = '' });
+      this.allItems.forEach(item => { item.style.transition = '' });
+
       if (this.settings.infiniteScroll) {
         this.currentItem = this.normalizeCurrentItemIndex(index);
-        this.updateItemsTranslate();
-        this.updateItemsClasses();
+        this.update();
       }
     }, this.settings.transitionTime);
   }
@@ -217,6 +210,26 @@ class Veer {
 
   prev() {
     this.goTo(this.currentItem - this.settings.itemsToScroll);
+  }
+
+  update() {
+    this.updateItemsTranslate();
+    this.updateActiveItems();
+    this.updateItemsClasses();
+  }
+
+  updateActiveItems() {
+    this.activeItemsStart = Math.min(this.currentItem, this.itemsCount - this.settings.itemsToShow);
+    this.activeItemsEnd = this.currentItem + this.settings.itemsToShow;
+
+    if (this.settings.centerMode) {
+      const cauterizeRatio = Math.floor((this.settings.itemsToShow - 1) / 2);
+      this.activeItemsStart = this.currentItem - cauterizeRatio;
+      this.activeItemsEnd -= cauterizeRatio;
+    }
+    if (!this.settings.centerMode && this.settings.infiniteScroll) {
+      this.activeItemsStart = this.currentItem;
+    }
   }
 
   updateItemsTranslate(drag = 0) {
@@ -238,32 +251,18 @@ class Veer {
         ? this.itemsCount - 1 - endHalf : this.currentItem;
       centringRatio = this.currentItem < startHalf ? (this.currentItem + 0.25) * this.itemWidth : centringRatio;
     }
-
     this.transformX = (scrolledItems * -this.itemWidth) - fixedRatio + drag + centringRatio;
     this.track.style.transform = `translate3d(${this.transformX}px, 0, 0)`;
   }
 
   updateItemsClasses() {
     const classes = this.settings.classes
-    // clean all classes
-    this.items.forEach(item => item.classList.remove(...Object.values(classes)));
-    if (this.settings.infiniteScroll) {
-      this.clonesAfter.forEach(item => item.classList.remove(...Object.values(classes)));
-      this.clonesBefore.forEach(item => item.classList.remove(...Object.values(classes)));
-    }
-    let startIndex = this.settings.infiniteScroll
-      ? this.currentItem
-      : Math.min(this.currentItem, this.itemsCount - this.settings.itemsToShow);
-    let endIndex = this.currentItem + this.settings.itemsToShow;
-    if (this.settings.centerMode) {
-      const cauterizeRatio = Math.floor((this.settings.itemsToShow - 1) / 2);
-      startIndex = this.currentItem - cauterizeRatio;
-      endIndex -= cauterizeRatio;
-    }
+    this.allItems.forEach(item => item.classList.remove(...Object.values(classes)));
+
     this.addClass(this.currentItem, classes.current);
-    this.addClass(startIndex - 1, classes.prev);
-    this.addClass(endIndex, classes.next);
-    for (let i = startIndex; i < endIndex; i++) {
+    this.addClass(this.activeItemsStart - 1, classes.prev);
+    this.addClass(this.activeItemsEnd, classes.next);
+    for (let i = this.activeItemsStart; i < this.activeItemsEnd; i++) {
       this.addClass(i, classes.active);
     }
   }

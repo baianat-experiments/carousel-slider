@@ -26,24 +26,15 @@
       direction: block;
       margin: 50px auto;
     }
-    .veer.is-3d {
-      perspective: 3000px;
+    #test4 .is-next {
+      opacity: 0.5;
     }
-    .veer.is-3d .veer-track,
-    .veer.is-3d .veer-item {
-       transform-style: preserve-3d;
-       -webkit-transform-style: preserve-3d;
-    }
-    .veer.is-3d .is-next {
-      opacity: 0.9;
-      transform: rotateY(70deg);
-      transform-origin: center left;
-    }
-    .veer.is-3d .is-prev {
-      opacity: 0.9;
-      transform: rotateY(-70deg);
-      transform-origin: center right;
+    #test4 .is-prev {
+      opacity: 0.5;
     };
+    #test4 .is-current {
+      transform: scale(1.5);
+    }
   </style>
 
   <div class="container">
@@ -129,7 +120,7 @@
 
   <div class="container">
     <h2>Working with states classes </h2>
-    <div class="veer is-3d" id="test4">
+    <div class="veer" id="test4">
       <div class="item">1</div>
       <div class="item">2</div>
       <div class="item">3</div>
@@ -223,6 +214,7 @@
       itemsToShow: 3,
       itemsToScroll: 1,
       infiniteScroll: true,
+      clicking: true,
       centerMode: true
     });
     new Veer('#test4', {

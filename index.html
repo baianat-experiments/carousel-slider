@@ -215,7 +215,9 @@
       itemsToShow: 5,
       itemsToScroll: 1,
       infiniteScroll: false,
-      centerMode: false
+      centerMode: false,
+      clicking: true,
+      dragging: true
     });
     new Veer('#test3', {
       itemsToShow: 3,
@@ -227,7 +229,8 @@
       itemsToShow: 3,
       infiniteScroll: true,
       centerMode: true,
-      drag: false
+      dragging: false,
+      clicking: true
     });
     const test5 = new Veer('#test5', {
         itemsToShow: 1,
@@ -237,7 +240,8 @@
       controls: test5,
       itemsToShow: 3,
       centerMode: true,
-      nextSlidePart: 0.5
+      nextSlidePart: 0.5,
+      clicking: true
     });
   </script>
 </body>

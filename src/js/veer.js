@@ -8,7 +8,8 @@ class Veer {
     centerMode = false,
     transitionTime = 500,
     controls = null,
-    drag = true,
+    dragging = true,
+    clicking = false,
     classes = {
       active: 'is-active',
       current: 'is-current',
@@ -24,7 +25,8 @@ class Veer {
       centerMode,
       transitionTime,
       controls,
-      drag,
+      dragging,
+      clicking,
       classes
     };
     this.init();
@@ -44,11 +46,11 @@ class Veer {
     this.isSliding = false;
 
     this.initWrapper();
-    this.initEvents();
     if (this.settings.infiniteScroll) this.initClones();
     if (this.settings.controls) {
       this.settings.controls.settings.follows = this;
     }
+    this.initEvents();
     this.updateWidth();
   }
 
@@ -95,7 +97,8 @@ class Veer {
       this.prevButton.addEventListener('click', this.prev.bind(this), false);
     }
 
-    if (this.settings.drag) {
+    // dragging event
+    if (this.settings.dragging) {
       this.track.addEventListener('mousedown', (event) => {
         if (event.button !== 0) return;
         let startPosition = {};
@@ -117,7 +120,9 @@ class Veer {
         const mouseupHandler = () => {
           const draggedItems = Math.floor((-this.delta.x + (this.itemWidth / 2)) / this.itemWidth);
           this.track.classList.remove('is-grabbing');
-          this.goTo(this.currentItem + draggedItems);
+          if (draggedItems !== 0) {
+            this.goTo(this.currentItem + draggedItems);
+          }
           document.removeEventListener('mousemove', mousemoveHandler);
           document.removeEventListener('mouseup', mouseupHandler);
         }
@@ -156,6 +161,13 @@ class Veer {
       });
     }
 
+    if (this.settings.clicking) {
+      this.items.forEach((item, index) => { item.addEventListener('click', () => this.goTo(index)) });
+      if (this.settings.infiniteScroll) {
+        this.clonesAfter.forEach((item, index) => { item.addEventListener('click', () => this.goTo(index + this.itemsCount)) });
+        this.clonesBefore.forEach((item, index) => { item.addEventListener('click', () => this.goTo(index - this.itemsCount)) });
+      }
+    }
     window.addEventListener('resize', this.updateWidth.bind(this), false);
   }
 
@@ -178,6 +190,7 @@ class Veer {
   }
 
   goTo(index, muted = false) {
+    console.log(index)
     if (this.isSliding) return;
     this.isSliding = true;
 

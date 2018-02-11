@@ -22,7 +22,8 @@ var Veer = function Veer(selector, ref) {
   var centerMode = ref.centerMode; if ( centerMode === void 0 ) centerMode = false;
   var transitionTime = ref.transitionTime; if ( transitionTime === void 0 ) transitionTime = 500;
   var controls = ref.controls; if ( controls === void 0 ) controls = null;
-  var drag = ref.drag; if ( drag === void 0 ) drag = true;
+  var dragging = ref.dragging; if ( dragging === void 0 ) dragging = true;
+  var clicking = ref.clicking; if ( clicking === void 0 ) clicking = false;
   var classes = ref.classes; if ( classes === void 0 ) classes = {
     active: 'is-active',
     current: 'is-current',
@@ -38,7 +39,8 @@ var Veer = function Veer(selector, ref) {
     centerMode: centerMode,
     transitionTime: transitionTime,
     controls: controls,
-    drag: drag,
+    dragging: dragging,
+    clicking: clicking,
     classes: classes
   };
   this.init();
@@ -58,11 +60,11 @@ Veer.prototype.init = function init () {
   this.isSliding = false;
 
   this.initWrapper();
-  this.initEvents();
   if (this.settings.infiniteScroll) { this.initClones(); }
   if (this.settings.controls) {
     this.settings.controls.settings.follows = this;
   }
+  this.initEvents();
   this.updateWidth();
 };
 
@@ -115,7 +117,8 @@ Veer.prototype.initEvents = function initEvents () {
     this.prevButton.addEventListener('click', this.prev.bind(this), false);
   }
 
-  if (this.settings.drag) {
+  // dragging event
+  if (this.settings.dragging) {
     this.track.addEventListener('mousedown', function (event) {
       if (event.button !== 0) { return; }
       var startPosition = {};
@@ -137,7 +140,9 @@ Veer.prototype.initEvents = function initEvents () {
       var mouseupHandler = function () {
         var draggedItems = Math.floor((-this$1.delta.x + (this$1.itemWidth / 2)) / this$1.itemWidth);
         this$1.track.classList.remove('is-grabbing');
-        this$1.goTo(this$1.currentItem + draggedItems);
+        if (draggedItems !== 0) {
+          this$1.goTo(this$1.currentItem + draggedItems);
+        }
         document.removeEventListener('mousemove', mousemoveHandler);
         document.removeEventListener('mouseup', mouseupHandler);
       };
@@ -176,6 +181,13 @@ Veer.prototype.initEvents = function initEvents () {
     });
   }
 
+  if (this.settings.clicking) {
+    this.items.forEach(function (item, index) { item.addEventListener('click', function () { return this$1.goTo(index); }); });
+    if (this.settings.infiniteScroll) {
+      this.clonesAfter.forEach(function (item, index) { item.addEventListener('click', function () { return this$1.goTo(index + this$1.itemsCount); }); });
+      this.clonesBefore.forEach(function (item, index) { item.addEventListener('click', function () { return this$1.goTo(index - this$1.itemsCount); }); });
+    }
+  }
   window.addEventListener('resize', this.updateWidth.bind(this), false);
 };
 
@@ -203,6 +215,7 @@ Veer.prototype.goTo = function goTo (index, muted) {
     var this$1 = this;
     if ( muted === void 0 ) muted = false;
 
+  console.log(index);
   if (this.isSliding) { return; }
   this.isSliding = true;
 

@@ -23,6 +23,7 @@ var Veer = function Veer(selector, ref) {
   var transitionTime = ref.transitionTime; if ( transitionTime === void 0 ) transitionTime = 500;
   var controls = ref.controls; if ( controls === void 0 ) controls = null;
   var dragging = ref.dragging; if ( dragging === void 0 ) dragging = true;
+  var touching = ref.touching; if ( touching === void 0 ) touching = true;
   var clicking = ref.clicking; if ( clicking === void 0 ) clicking = false;
   var classes = ref.classes; if ( classes === void 0 ) classes = {
     active: 'is-active',
@@ -40,6 +41,7 @@ var Veer = function Veer(selector, ref) {
     transitionTime: transitionTime,
     controls: controls,
     dragging: dragging,
+    touching: touching,
     clicking: clicking,
     classes: classes
   };
@@ -58,12 +60,16 @@ Veer.prototype.init = function init () {
   this.nextButton = this.el.querySelector('.veer-next');
   this.prevButton = this.el.querySelector('.veer-prev');
   this.isSliding = false;
+  this.delta = { x: 0, y: 0 };
 
   this.initWrapper();
-  if (this.settings.infiniteScroll) { this.initClones(); }
+  if (this.settings.infiniteScroll) {
+    this.initClones();
+  }
   if (this.settings.controls) {
     this.settings.controls.settings.follows = this;
   }
+
   this.initEvents();
   this.updateWidth();
 };
@@ -116,68 +122,53 @@ Veer.prototype.initEvents = function initEvents () {
   if (this.prevButton) {
     this.prevButton.addEventListener('click', this.prev.bind(this), false);
   }
+  var startPosition = {};
+  var endPosition = {};
+  var moveHandler = function (event) {
+    endPosition.x = event.type === 'mousemove' ? event.clientX : event.touches[0].clientX;
+    endPosition.y = event.type === 'mousemove' ? event.clientY : event.touches[0].clientY;
+    this$1.delta.x = endPosition.x - startPosition.x;
+    this$1.delta.y = endPosition.y - startPosition.y;
+    this$1.updateItemsTranslate(this$1.delta.x);
+  };
+  var upHandler = function () {
+    var draggedItems = Math.floor((-this$1.delta.x + (this$1.itemWidth / 2)) / this$1.itemWidth);
+    this$1.track.classList.remove('is-grabbing');
+    console.log(this$1.delta.x);
+    if (Math.abs(this$1.delta.x) > 20) {
+      this$1.goTo(this$1.currentItem + draggedItems);
+    }
+    document.removeEventListener('mousemove', moveHandler);
+    document.removeEventListener('mouseup', upHandler);
+    document.removeEventListener('touchmove', moveHandler);
+    document.removeEventListener('touchend', upHandler);
+  };
 
   // dragging event
   if (this.settings.dragging) {
     this.track.addEventListener('mousedown', function (event) {
       if (event.button !== 0) { return; }
-      var startPosition = {};
-      var endPosition = {};
-      this$1.delta = {x: 0, y: 0};
       this$1.track.classList.add('is-grabbing');
 
       event.preventDefault();
       startPosition.x = event.clientX;
       startPosition.y = event.clientY;
 
-      var mousemoveHandler = function (evnt) {
-        endPosition.x = evnt.clientX;
-        endPosition.y = evnt.clientY;
-        this$1.delta.x = endPosition.x - startPosition.x;
-        this$1.delta.y = endPosition.y - startPosition.y;
-        this$1.updateItemsTranslate(this$1.delta.x);
-      };
-      var mouseupHandler = function () {
-        var draggedItems = Math.floor((-this$1.delta.x + (this$1.itemWidth / 2)) / this$1.itemWidth);
-        this$1.track.classList.remove('is-grabbing');
-        if (draggedItems !== 0) {
-          this$1.goTo(this$1.currentItem + draggedItems);
-        }
-        document.removeEventListener('mousemove', mousemoveHandler);
-        document.removeEventListener('mouseup', mouseupHandler);
-      };
-      document.addEventListener('mousemove', mousemoveHandler);
-      document.addEventListener('mouseup', mouseupHandler);
+      document.addEventListener('mousemove', moveHandler);
+      document.addEventListener('mouseup', upHandler);
     });
+  }
 
+  if (this.settings.touching) {
     this.track.addEventListener('touchstart', function (event) {
-      console.log(event);
-      var startPosition = {};
-      var endPosition = {};
-      this$1.delta = {};
       this$1.track.classList.add('is-grabbing');
 
       event.preventDefault();
       startPosition.x = event.touches[0].clientX;
       startPosition.y = event.touches[0].clientY;
 
-      var touchmoveHandler = function (evnt) {
-        endPosition.x = evnt.touches[0].clientX;
-        endPosition.y = evnt.touches[0].clientY;
-        this$1.delta.x = endPosition.x - startPosition.x;
-        this$1.delta.y = endPosition.y - startPosition.y;
-        this$1.updateItemsTranslate(this$1.delta.x);
-      };
-      var touchendHandler = function () {
-        var draggedItems = Math.floor((-this$1.delta.x + (this$1.itemWidth / 2)) / this$1.itemWidth);
-        this$1.track.classList.remove('is-grabbing');
-        this$1.goTo(this$1.currentItem + draggedItems);
-
-        document.removeEventListener('touchmove', touchmoveHandler);
-        document.removeEventListener('touchend', touchendHandler);
-      };
-      document.addEventListener('touchmove', touchmoveHandler);
-      document.addEventListener('touchend', touchendHandler);
+      document.addEventListener('touchmove', moveHandler);
+      document.addEventListener('touchend', upHandler);
     });
   }
 

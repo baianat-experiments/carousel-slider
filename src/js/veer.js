@@ -9,6 +9,7 @@ class Veer {
     transitionTime = 500,
     controls = null,
     dragging = true,
+    touching = true,
     clicking = false,
     classes = {
       active: 'is-active',
@@ -26,6 +27,7 @@ class Veer {
       transitionTime,
       controls,
       dragging,
+      touching,
       clicking,
       classes
     };
@@ -44,12 +46,16 @@ class Veer {
     this.nextButton = this.el.querySelector('.veer-next');
     this.prevButton = this.el.querySelector('.veer-prev');
     this.isSliding = false;
+    this.delta = { x: 0, y: 0 };
 
     this.initWrapper();
-    if (this.settings.infiniteScroll) this.initClones();
+    if (this.settings.infiniteScroll) {
+      this.initClones();
+    }
     if (this.settings.controls) {
       this.settings.controls.settings.follows = this;
     }
+
     this.initEvents();
     this.updateWidth();
   }
@@ -96,68 +102,53 @@ class Veer {
     if (this.prevButton) {
       this.prevButton.addEventListener('click', this.prev.bind(this), false);
     }
+    let startPosition = {};
+    let endPosition = {};
+    const moveHandler = (event) => {
+      endPosition.x = event.type === 'mousemove' ? event.clientX : event.touches[0].clientX;
+      endPosition.y = event.type === 'mousemove' ? event.clientY : event.touches[0].clientY;
+      this.delta.x = endPosition.x - startPosition.x;
+      this.delta.y = endPosition.y - startPosition.y;
+      this.updateItemsTranslate(this.delta.x);
+    }
+    const upHandler = () => {
+      const draggedItems = Math.floor((-this.delta.x + (this.itemWidth / 2)) / this.itemWidth);
+      this.track.classList.remove('is-grabbing');
+      console.log(this.delta.x)
+      if (Math.abs(this.delta.x) > 20) {
+        this.goTo(this.currentItem + draggedItems);
+      }
+      document.removeEventListener('mousemove', moveHandler);
+      document.removeEventListener('mouseup', upHandler);
+      document.removeEventListener('touchmove', moveHandler);
+      document.removeEventListener('touchend', upHandler);
+    }
 
     // dragging event
     if (this.settings.dragging) {
       this.track.addEventListener('mousedown', (event) => {
         if (event.button !== 0) return;
-        let startPosition = {};
-        let endPosition = {};
-        this.delta = {x: 0, y: 0};
         this.track.classList.add('is-grabbing');
 
         event.preventDefault();
         startPosition.x = event.clientX;
         startPosition.y = event.clientY;
 
-        const mousemoveHandler = (evnt) => {
-          endPosition.x = evnt.clientX;
-          endPosition.y = evnt.clientY;
-          this.delta.x = endPosition.x - startPosition.x;
-          this.delta.y = endPosition.y - startPosition.y;
-          this.updateItemsTranslate(this.delta.x);
-        }
-        const mouseupHandler = () => {
-          const draggedItems = Math.floor((-this.delta.x + (this.itemWidth / 2)) / this.itemWidth);
-          this.track.classList.remove('is-grabbing');
-          if (draggedItems !== 0) {
-            this.goTo(this.currentItem + draggedItems);
-          }
-          document.removeEventListener('mousemove', mousemoveHandler);
-          document.removeEventListener('mouseup', mouseupHandler);
-        }
-        document.addEventListener('mousemove', mousemoveHandler);
-        document.addEventListener('mouseup', mouseupHandler);
+        document.addEventListener('mousemove', moveHandler);
+        document.addEventListener('mouseup', upHandler);
       });
+    }
 
+    if (this.settings.touching) {
       this.track.addEventListener('touchstart', (event) => {
-        console.log(event)
-        let startPosition = {}
-        let endPosition = {}
-        this.delta = {}
         this.track.classList.add('is-grabbing');
 
         event.preventDefault();
         startPosition.x = event.touches[0].clientX;
         startPosition.y = event.touches[0].clientY;
 
-        const touchmoveHandler = (evnt) => {
-          endPosition.x = evnt.touches[0].clientX;
-          endPosition.y = evnt.touches[0].clientY;
-          this.delta.x = endPosition.x - startPosition.x;
-          this.delta.y = endPosition.y - startPosition.y;
-          this.updateItemsTranslate(this.delta.x);
-        }
-        const touchendHandler = () => {
-          const draggedItems = Math.floor((-this.delta.x + (this.itemWidth / 2)) / this.itemWidth);
-          this.track.classList.remove('is-grabbing');
-          this.goTo(this.currentItem + draggedItems);
-
-          document.removeEventListener('touchmove', touchmoveHandler);
-          document.removeEventListener('touchend', touchendHandler);
-        }
-        document.addEventListener('touchmove', touchmoveHandler);
-        document.addEventListener('touchend', touchendHandler);
+        document.addEventListener('touchmove', moveHandler);
+        document.addEventListener('touchend', upHandler);
       });
     }
 
